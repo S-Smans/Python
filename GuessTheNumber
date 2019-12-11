@@ -1,0 +1,22 @@
+from random import randint
+
+random_number = randint(0, 21)
+
+game_won = False
+print(random_number)
+while not game_won:
+    try:
+        user_guess = int(input("Guess number 0 - 20: "))
+        if user_guess == random_number:
+            game_won = True
+        elif user_guess > 20:
+            print("Entered number can't be higher than 20!")
+        elif user_guess < 0:
+            print("Entered number can't be lower than 0!")
+        elif user_guess > random_number:
+            print("Number is too high!")
+        elif user_guess < random_number:
+            print("Number is too low!")
+    except ValueError:
+        print("Input has to be a number!")
+print("You Won!")

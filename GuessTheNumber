@@ -3,7 +3,6 @@ from random import randint
 random_number = randint(0, 21)
 
 game_won = False
-print(random_number)
 while not game_won:
     try:
         user_guess = int(input("Guess number 0 - 20: "))

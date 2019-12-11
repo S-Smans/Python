@@ -1,0 +1,31 @@
+import random
+
+game_over = False
+while not game_over:
+    computer_answer = random.choice(["Rock", "Paper", "Scissors"])
+    user_input = input("Choose Quit Rock Paper or Scissors: ").title()
+    if user_input == computer_answer:
+        print(f"{user_input} VS {computer_answer} ")
+        print("Tie try again!")
+    elif user_input == "Rock" and computer_answer == "Paper":
+        print("Rock VS Paper")
+        print("Computer Wins!")
+    elif user_input == "Paper" and computer_answer == "Scissors":
+        print("Paper VS Scissors")
+        print("Computer Won!")
+    elif user_input == "Scissors" and computer_answer == "Rock":
+        print("Scissors VS Rock")
+        print("Computer Won!")
+    elif user_input == "Rock" and computer_answer == "Scissors":
+        print("Rock VS Paper")
+        print("User Wins!")
+    elif user_input == "Paper" and computer_answer == "Rock":
+        print("Paper VS Scissors")
+        print("User Wins!")
+    elif user_input == "Scissors" and computer_answer == "Paper":
+        print("Scissors VS Paper")
+        print("User Wins!")
+    elif user_input == "Quit":
+        game_over = True
+    else:
+        print("Wrong input!")

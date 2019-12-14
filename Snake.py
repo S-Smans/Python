@@ -2,107 +2,121 @@ import pygame
 import random
 
 pygame.init()
-
-display_width = 500
-display_height = 500
+pygame.font.init()
+# Games settings
+display_width = 600
+display_height = 400
 snake_size = 25
 FPS = 17
 
-black = (0, 0, 0)
-dark_green = (0, 100, 0)
+# Colors
 green = (0, 255, 0)
 red = (255, 0, 0)
-
-
+dark_green = (0, 100, 0)
+# Map variable
 game_display = pygame.display.set_mode((display_width, display_height))
-pygame.display.set_caption("Snake")
-font = pygame.font.SysFont(None, 25)
+
+# Word Font
+font = pygame.font.SysFont("Comic Sans MS", 30)
 
 
-def message_to_screen(msg, color):
-    screen_text = font.render(msg, True, color)
-    game_display.blit(screen_text, [int(display_height / 2), int(display_width / 2)])
+# Pause Message
+def pause_message(msg, color):
+    pause_text = font.render(msg, True, color)
+    game_display.blit(pause_text, [int(display_width / 2), int(display_height / 2)])
 
 
-def snake(lead_x, lead_y):
-    pygame.draw.rect(game_display, dark_green, [lead_x, lead_y, snake_size, snake_size])
+# Snake function
+def snake(snake_tail):
+    for XnY in snake_tail:
+        pygame.draw.rect(game_display, dark_green, [XnY[0], XnY[1], snake_size, snake_size])
 
 
-def food(rand_x, rand_y):
-    pygame.draw.rect(game_display, red, [rand_x, rand_y, snake_size, snake_size])
+# Apple function
+def apple(apple_direction_x, apple_direction_y):
+    pygame.draw.rect(game_display, red, [apple_direction_x, apple_direction_y, snake_size, snake_size])
 
 
-clock = pygame.time.Clock()
-
-
+# Main game loop
 def game_loop():
-    game_exit = False
+    # Game variables
+    snake_x = int(display_width / 2)
+    snake_y = int(display_height / 2)
+
+    new_snake_x = 0
+    new_snake_y = 0
+
+    # Apple Starting location
+    apple_x = random.randrange(0, display_width, snake_size)
+    apple_y = random.randrange(0, display_height, snake_size)
+
+    # Game State
     game_over = False
+    game_pause = False
 
-    rand_x = random.randrange(0, display_width - snake_size, snake_size)
-    rand_y = random.randrange(0, display_height - snake_size, snake_size)
+    # Game Clock
+    clock = pygame.time.Clock()
 
-    lead_x = int(display_width / 2)
-    lead_y = int(display_height / 2)
+    snake_tail = []
+    snake_length = 1
+    while not game_over:
 
-    lead_new_x = 0
-    lead_new_y = 0
-    while not game_exit:
-
-        while game_over:
-            game_display.fill(black)
-            message_to_screen("game over, press C to play again or Q to quit", red)
+        # Paused Loop
+        while game_pause:
+            pygame.display.set_mode((display_width, display_height))
+            pause_message("Game Paused!", red)
             pygame.display.update()
-
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_exit = True
-                        game_over = False
-                    if event.key == pygame.K_c:
-                        game_loop()
+                    if event.key == pygame.K_p:
+                        game_pause = False
+                elif event.type == pygame.QUIT:
+                    game_pause = False
+                    game_over = True
+
+        # Running Game Loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                game_exit = True
+                game_over = True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    lead_new_y = 0
-                    lead_new_x = - snake_size
+                    new_snake_y = 0
+                    new_snake_x = -25
                 elif event.key == pygame.K_RIGHT:
-                    lead_new_y = 0
-                    lead_new_x = + snake_size
-                elif event.key == pygame.K_DOWN:
-                    lead_new_x = 0
-                    lead_new_y = + snake_size
+                    new_snake_y = 0
+                    new_snake_x = 25
                 elif event.key == pygame.K_UP:
-                    lead_new_x = 0
-                    lead_new_y = - snake_size
-        if lead_x >= display_width:
-            lead_x = 0
-        elif lead_x < 0:
-            lead_x = display_width
-        elif lead_y >= display_height:
-            lead_y = 0
-        elif lead_y < 0:
-            lead_y = display_height
+                    new_snake_x = 0
+                    new_snake_y = -25
+                elif event.key == pygame.K_DOWN:
+                    new_snake_x = 0
+                    new_snake_y = 25
+                elif event.key == pygame.K_p:
+                    game_pause = True
 
-        lead_y += lead_new_y
-        lead_x += lead_new_x
+        # Eating apple
+        if snake_x == apple_x and snake_y == apple_y:
+            apple_x = random.randrange(0, display_width, snake_size)
+            apple_y = random.randrange(0, display_height, snake_size)
+            snake_length += 1
 
-        game_display.fill(black)
+        snake_x += new_snake_x
+        snake_y += new_snake_y
 
-        food(rand_x, rand_y)
-        snake(lead_x, lead_y)
+        snake_head = [snake_x, snake_y]
+        snake_tail.append(snake_head)
+        for each_block in snake_tail[1:-1]:
+            if each_block == snake_head:
+                game_over = True
+        if len(snake_tail) > snake_length:
+            del snake_tail[0]
 
+        pygame.display.set_mode((display_width, display_height))
+        apple(apple_x, apple_y)
+        snake(snake_tail)
         pygame.display.update()
 
-        if lead_x == rand_x and lead_y == rand_y:
-            print("nom")
-
         clock.tick(FPS)
-
-    pygame.quit()
-    quit()
 
 
 game_loop()

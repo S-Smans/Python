@@ -8,7 +8,7 @@ pygame.font.init()
 display_width = 600
 display_height = 600
 snake_size = 25
-apple_size = 50
+apple_size = 25
 FPS = 17
 
 # Colors
@@ -18,7 +18,7 @@ dark_green = (0, 100, 0)
 black = (0, 0, 0)
 # Map variable
 game_display = pygame.display.set_mode((display_width, display_height))
-
+pygame.display.set_caption("Snake!")
 # Word Font
 font = pygame.font.SysFont("Comic Sans MS", 30)
 
@@ -54,16 +54,16 @@ def game_loop():
     apple_y = random.randrange(0, display_height, snake_size)
 
     # Game State
-    game_over = False
     game_pause = False
     game_crashed = False
 
     # Game Clock
     clock = pygame.time.Clock()
 
+    direction = ""
     snake_tail = []
     snake_length = 1
-    while not game_over:
+    while True:
 
         # Paused Loop
         while game_pause:
@@ -75,38 +75,58 @@ def game_loop():
                     if event.key == pygame.K_p:
                         game_pause = False
                 elif event.type == pygame.QUIT:
-                    game_pause = False
-                    game_over = True
+                    pygame.quit()
+                    quit()
 
         # Running Game Loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                game_over = True
+                pygame.quit()
+                quit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT and direction != "right":
                     new_snake_y = 0
                     new_snake_x = -25
-                elif event.key == pygame.K_RIGHT:
+                    direction = "left"
+                elif event.key == pygame.K_RIGHT and direction != "left":
                     new_snake_y = 0
                     new_snake_x = 25
-                elif event.key == pygame.K_UP:
+                    direction = "right"
+                elif event.key == pygame.K_UP and direction != "down":
                     new_snake_x = 0
                     new_snake_y = -25
-                elif event.key == pygame.K_DOWN:
+                    direction = "up"
+                elif event.key == pygame.K_DOWN and direction != "up":
                     new_snake_x = 0
                     new_snake_y = 25
+                    direction = "down"
                 elif event.key == pygame.K_p:
                     game_pause = True
 
         # Eating apple
-        if snake_x == apple_x and snake_y == apple_y:
-            apple_x = random.randrange(0, display_width, snake_size)
-            apple_y = random.randrange(0, display_height, snake_size)
-            snake_length += 1
-
+        if apple_x <= snake_x < apple_x + apple_size:
+            if apple_y <= snake_y < apple_y + apple_size:
+                apple_x = random.randrange(0, display_width, snake_size)
+                apple_y = random.randrange(0, display_height, snake_size)
+                snake_length += 1
+        elif snake_x <= apple_x < snake_x + snake_size:
+            if snake_y <= apple_y < snake_y + snake_size:
+                apple_x = random.randrange(0, display_width, snake_size)
+                apple_y = random.randrange(0, display_height, snake_size)
+                snake_length += 1
         # Assigning new snake XnY values
         snake_x += new_snake_x
         snake_y += new_snake_y
+
+        # Snake goes threw walls
+        if snake_x >= display_width:
+            snake_x = 0
+        elif snake_x < 0:
+            snake_x = display_width - snake_size
+        elif snake_y >= display_height:
+            snake_y = 0
+        elif snake_y < 0:
+            snake_y = display_height - snake_size
 
         # Snake Length list
         snake_head = [snake_x, snake_y]
@@ -120,16 +140,6 @@ def game_loop():
         # Deletes snake trail
         if len(snake_tail) > snake_length:
             del snake_tail[0]
-
-        # Snake Walls
-        if snake_x >= display_width:
-            snake_x = 0
-        elif snake_x < 0:
-            snake_x = display_width
-        elif snake_y >= display_height:
-            snake_y = 0
-        elif snake_y < 0:
-            snake_y = display_height
 
         # Calls apple and snake function
         game_display.fill(black)
@@ -149,11 +159,11 @@ def game_loop():
                         game_crashed = False
                         game_loop()
                     elif event.key == pygame.K_q:
-                        game_crashed = False
-                        game_over = True
+                        pygame.quit()
+                        quit()
                 elif event.type == pygame.QUIT:
-                    game_crashed = False
-                    game_over = True
+                    pygame.quit()
+                    quit()
 
 
 game_loop()

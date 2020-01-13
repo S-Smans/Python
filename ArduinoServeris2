@@ -1,0 +1,80 @@
+#include <WiFi.h>
+#include <WiFiUDP.h>
+
+#define ARRAYSIZE     2
+
+const char* ssid = "RenameotsSSID";  //  WiFi SSID
+const char* pass = "kms";       // WiFi Parole
+
+const char* serverIP="192.168.43.28"; //Servera IP Adrese
+unsigned int serverPort = 61625; // Servera ports
+
+String value = "0";
+byte packetBuffer[512];
+char incomingPacket[255];
+int pvalue = 0;
+int potPin = A0;
+char val[ARRAYSIZE];
+char result[8];
+float fpot = analogRead(potPin);
+// UDP instance, kas lauj sutit un sanemt datus
+WiFiUDP Udp;
+char  replyPacket[] = "Hi there! Got the message :-)";  // a reply string to send back
+
+void setup(){
+  Serial.begin(115200);
+  Serial.println("starting");
+  start_wifi();
+ 
+}
+
+int main(void){
+while (replyPacket[pvalue] != 0) Udp.write((uint8_t)replyPacket[pvalue++]); }
+
+void printWifiStatus() {
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Addrese: ");
+  Serial.println(ip);
+}
+
+void start_wifi() {
+  WiFi.begin(ssid, pass);
+  //Gaida savienojumu
+  Serial.print("Savieno");
+  Serial.print(ssid);
+  int tries=0;
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    tries++;
+    if (tries > 30){
+      break;
+    }
+  }
+  Serial.println();
+  printWifiStatus();
+  Serial.println("Savienots ar WiFi");
+  Serial.print("Udp serveris uzsakts uz porta 1234 ");
+  Serial.println(1234);
+  Udp.begin(1234);
+}
+
+void loop() {
+    int packetSize = Udp.parsePacket();
+  if (packetSize)
+  while (replyPacket[pvalue] != 0)
+    Udp.write((uint8_t)replyPacket[pvalue++]);
+    Udp.endPacket();
+  pvalue = analogRead(potPin);
+  itoa(pvalue, val, 10);
+  Serial.println(val);
+  float voltage = pvalue * (3.3 / 1023.0);
+  dtostrf(voltage, 6, 2, result);
+  Serial.println(voltage);
+  Udp.beginPacket(serverIP, serverPort);
+  delay(500);
+  Serial.println("OK");
+  Udp.endPacket();
+}
